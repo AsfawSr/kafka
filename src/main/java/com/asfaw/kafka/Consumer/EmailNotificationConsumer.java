@@ -9,6 +9,6 @@ public class EmailNotificationConsumer {
 
     @KafkaListener(topics = "notification.email.trucksload", groupId = "email-group")
     public void consume(NotificationEvent event) {
-        System.out.println("📧 Sending Email: " + event);
+        System.out.println("Sending Email: " + event);
     }
 }
