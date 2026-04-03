@@ -1,5 +1,6 @@
 package com.asfaw.kafka.controller;
 
+import com.asfaw.kafka.order.model.OrderEvent;
 import com.asfaw.kafka.service.ProducerService;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -17,9 +18,8 @@ public class ProducerController {
     }
 
     @PostMapping
-    public String publish(@RequestBody String message) {
-        producerService.sendOrder(message);
-        return "Message sent: " + message;
+    public String publish(@RequestBody OrderEvent event) {
+        producerService.sendOrder(event);
+        return "Order event sent: " + event.getOrderId();
     }
 }
-
