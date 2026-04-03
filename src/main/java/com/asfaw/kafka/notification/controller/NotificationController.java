@@ -2,6 +2,8 @@ package com.asfaw.kafka.notification.controller;
 
 import com.asfaw.kafka.notification.model.NotificationEvent;
 import com.asfaw.kafka.notification.service.NotificationProducer;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,10 +20,12 @@ public class NotificationController {
     }
 
     @PostMapping
-    public String notify(@RequestBody NotificationEvent event) {
-        producer.send(event);
-        return "Notification event sent!";
+    public ResponseEntity<String> notify(@RequestBody NotificationEvent event) {
+        try {
+            producer.send(event);
+            return ResponseEntity.status(HttpStatus.ACCEPTED).body("Notification event sent!");
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.badRequest().body(ex.getMessage());
+        }
     }
 }
-
-
