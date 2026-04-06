@@ -10,7 +10,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
-import org.springframework.kafka.support.serializer.JsonDeserializer;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -23,15 +22,12 @@ public class KafkaConsumerConfig {
 
     @Bean
     public ConsumerFactory<String, NotificationEventEnvelope> notificationEventConsumerFactory() {
-        JsonDeserializer<NotificationEventEnvelope> jsonDeserializer = new JsonDeserializer<>(NotificationEventEnvelope.class);
-        jsonDeserializer.addTrustedPackages("com.asfaw.kafka");
-
         Map<String, Object> props = new HashMap<>();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
+        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, NotificationEventEnvelopeCompatDeserializer.class);
 
-        return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(), jsonDeserializer);
+        return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(), new NotificationEventEnvelopeCompatDeserializer());
     }
 
     @Bean
@@ -44,15 +40,12 @@ public class KafkaConsumerConfig {
 
     @Bean
     public ConsumerFactory<String, OrderEventEnvelope> orderEventConsumerFactory() {
-        JsonDeserializer<OrderEventEnvelope> jsonDeserializer = new JsonDeserializer<>(OrderEventEnvelope.class);
-        jsonDeserializer.addTrustedPackages("com.asfaw.kafka");
-
         Map<String, Object> props = new HashMap<>();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
+        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, OrderEventEnvelopeCompatDeserializer.class);
 
-        return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(), jsonDeserializer);
+        return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(), new OrderEventEnvelopeCompatDeserializer());
     }
 
     @Bean
