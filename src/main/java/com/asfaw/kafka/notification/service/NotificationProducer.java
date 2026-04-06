@@ -2,8 +2,10 @@ package com.asfaw.kafka.notification.service;
 
 import com.asfaw.kafka.notification.model.NotificationEvent;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Service;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.Locale;
 import java.util.Map;
 
@@ -23,6 +25,16 @@ public class NotificationProducer {
     }
 
     public void send(NotificationEvent event) {
+        String topic = resolveTopic(event);
+        kafkaTemplate.send(topic, event);
+    }
+
+    public CompletableFuture<SendResult<String, NotificationEvent>> send(String key, NotificationEvent event) {
+        String topic = resolveTopic(event);
+        return kafkaTemplate.send(topic, key, event);
+    }
+
+    private String resolveTopic(NotificationEvent event) {
         if (event == null || event.getType() == null || event.getType().isBlank()) {
             throw new IllegalArgumentException("Notification type is required");
         }
@@ -34,6 +46,6 @@ public class NotificationProducer {
             throw new IllegalArgumentException("Unknown notification type: " + event.getType());
         }
 
-        kafkaTemplate.send(topic, event);
+        return topic;
     }
 }

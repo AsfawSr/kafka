@@ -1,47 +1,39 @@
 package com.asfaw.kafka.service;
 
-import com.asfaw.kafka.notification.service.NotificationProducer;
 import com.asfaw.kafka.order.model.OrderEvent;
+import com.asfaw.kafka.outbox.service.OutboxService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.mockito.ArgumentMatchers.argThat;
-import static org.mockito.Mockito.never;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 class OrderConsumerTest {
 
     @Mock
-    private NotificationProducer notificationProducer;
+    private OutboxService outboxService;
 
     @InjectMocks
     private OrderConsumer orderConsumer;
 
     @Test
-    void consumeBuildsNotificationEventAndPublishesIt() {
+    void consumeStoresOrderInOutbox() {
         OrderEvent orderEvent = new OrderEvent("o-100", "u-1", "Your order is confirmed", "EMAIL");
 
         orderConsumer.consume(orderEvent);
 
-        verify(notificationProducer).send(argThat(event ->
-                "u-1".equals(event.getUserId())
-                        && "Your order is confirmed".equals(event.getMessage())
-                        && "EMAIL".equals(event.getType())
-        ));
+        verify(outboxService).enqueueNotificationFromOrder(eq(orderEvent));
     }
 
     @Test
-    void consumeSkipsWhenNotificationTypeMissing() {
+    void consumeStillDelegatesValidationToOutboxService() {
         OrderEvent orderEvent = new OrderEvent("o-101", "u-1", "hello", " ");
-
         orderConsumer.consume(orderEvent);
-
-
-        verify(notificationProducer, never()).send(argThat(event -> true));
+        verify(outboxService).enqueueNotificationFromOrder(eq(orderEvent));
     }
 }
 
