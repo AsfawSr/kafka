@@ -40,6 +40,7 @@ class OrderConsumerTest {
 
         orderConsumer.consume(orderEvent);
 
+
         verify(notificationProducer, never()).send(argThat(event -> true));
     }
 }
