@@ -1,6 +1,6 @@
 package com.asfaw.kafka.Consumer;
 
-import com.asfaw.kafka.notification.model.NotificationEvent;
+import com.asfaw.kafka.notification.model.NotificationEventEnvelope;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
@@ -12,7 +12,9 @@ public class SMSNotificationConsumer {
             groupId = "${app.kafka.groups.sms:sms-group}",
             containerFactory = "notificationKafkaListenerContainerFactory"
     )
-    public void consume(NotificationEvent event) {
-        System.out.println("Sending SMS: " + event);
+    public void consume(NotificationEventEnvelope eventEnvelope) {
+        System.out.println("Sending SMS from envelope "
+                + (eventEnvelope != null ? eventEnvelope.getEventId() : "null")
+                + ": " + (eventEnvelope != null ? eventEnvelope.getPayload() : null));
     }
 }

@@ -1,6 +1,8 @@
 package com.asfaw.kafka.notification.service;
 
+import com.asfaw.kafka.common.model.EventEnvelopeFactory;
 import com.asfaw.kafka.notification.model.NotificationEvent;
+import com.asfaw.kafka.notification.model.NotificationEventEnvelope;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -18,7 +20,10 @@ import static org.mockito.Mockito.verifyNoInteractions;
 class NotificationProducerTest {
 
     @Mock
-    private KafkaTemplate<String, NotificationEvent> kafkaTemplate;
+    private KafkaTemplate<String, NotificationEventEnvelope> kafkaTemplate;
+
+    @Mock
+    private EventEnvelopeFactory envelopeFactory;
 
     @InjectMocks
     private NotificationProducer producer;
@@ -26,11 +31,15 @@ class NotificationProducerTest {
     @Test
     void sendPublishesToExpectedTopicForCaseInsensitiveType() {
         NotificationEvent event = new NotificationEvent("u-1", "hello", "email");
+        NotificationEventEnvelope envelope = new NotificationEventEnvelope();
+        envelope.setEventId("evt-100");
+        envelope.setPayload(event);
+        org.mockito.Mockito.when(envelopeFactory.notificationEnvelope(event)).thenReturn(envelope);
 
         producer.send(event);
 
         ArgumentCaptor<String> topicCaptor = ArgumentCaptor.forClass(String.class);
-        verify(kafkaTemplate).send(topicCaptor.capture(), org.mockito.ArgumentMatchers.eq(event));
+        verify(kafkaTemplate).send(topicCaptor.capture(), org.mockito.ArgumentMatchers.eq("evt-100"), org.mockito.ArgumentMatchers.eq(envelope));
         assertEquals("notification.email.trucksload", topicCaptor.getValue());
     }
 

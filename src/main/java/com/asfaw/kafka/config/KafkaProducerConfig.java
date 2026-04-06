@@ -1,7 +1,7 @@
 package com.asfaw.kafka.config;
 
-import com.asfaw.kafka.notification.model.NotificationEvent;
-import com.asfaw.kafka.order.model.OrderEvent;
+import com.asfaw.kafka.notification.model.NotificationEventEnvelope;
+import com.asfaw.kafka.order.model.OrderEventEnvelope;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Value;
@@ -40,7 +40,7 @@ public class KafkaProducerConfig {
     }
 
     @Bean
-    public ProducerFactory<String, NotificationEvent> eventProducerFactory() {
+    public ProducerFactory<String, NotificationEventEnvelope> eventProducerFactory() {
         Map<String, Object> props = new HashMap<>();
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
@@ -50,12 +50,12 @@ public class KafkaProducerConfig {
     }
 
     @Bean
-    public KafkaTemplate<String, NotificationEvent> eventKafkaTemplate() {
+    public KafkaTemplate<String, NotificationEventEnvelope> eventKafkaTemplate() {
         return new KafkaTemplate<>(eventProducerFactory());
     }
 
     @Bean
-    public ProducerFactory<String, OrderEvent> orderEventProducerFactory() {
+    public ProducerFactory<String, OrderEventEnvelope> orderEventProducerFactory() {
         Map<String, Object> props = new HashMap<>();
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
@@ -65,7 +65,7 @@ public class KafkaProducerConfig {
     }
 
     @Bean
-    public KafkaTemplate<String, OrderEvent> orderKafkaTemplate() {
+    public KafkaTemplate<String, OrderEventEnvelope> orderKafkaTemplate() {
         return new KafkaTemplate<>(orderEventProducerFactory());
     }
 }

@@ -1,6 +1,8 @@
 package com.asfaw.kafka.notification.service;
 
+import com.asfaw.kafka.common.model.EventEnvelopeFactory;
 import com.asfaw.kafka.notification.model.NotificationEvent;
+import com.asfaw.kafka.notification.model.NotificationEventEnvelope;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Service;
@@ -18,20 +20,27 @@ public class NotificationProducer {
             "PUSH", "notification.push.trucksload"
     );
 
-    private final KafkaTemplate<String, NotificationEvent> kafkaTemplate;
+    private final KafkaTemplate<String, NotificationEventEnvelope> kafkaTemplate;
+    private final EventEnvelopeFactory envelopeFactory;
 
-    public NotificationProducer(KafkaTemplate<String, NotificationEvent> kafkaTemplate) {
+    public NotificationProducer(
+            KafkaTemplate<String, NotificationEventEnvelope> kafkaTemplate,
+            EventEnvelopeFactory envelopeFactory
+    ) {
         this.kafkaTemplate = kafkaTemplate;
+        this.envelopeFactory = envelopeFactory;
     }
 
     public void send(NotificationEvent event) {
         String topic = resolveTopic(event);
-        kafkaTemplate.send(topic, event);
+        NotificationEventEnvelope envelope = envelopeFactory.notificationEnvelope(event);
+        kafkaTemplate.send(topic, envelope.getEventId(), envelope);
     }
 
-    public CompletableFuture<SendResult<String, NotificationEvent>> send(String key, NotificationEvent event) {
+    public CompletableFuture<SendResult<String, NotificationEventEnvelope>> send(String key, NotificationEvent event) {
         String topic = resolveTopic(event);
-        return kafkaTemplate.send(topic, key, event);
+        NotificationEventEnvelope envelope = envelopeFactory.notificationEnvelope(event);
+        return kafkaTemplate.send(topic, key, envelope);
     }
 
     private String resolveTopic(NotificationEvent event) {

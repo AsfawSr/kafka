@@ -1,6 +1,6 @@
 package com.asfaw.kafka.Consumer;
 
-import com.asfaw.kafka.notification.model.NotificationEvent;
+import com.asfaw.kafka.notification.model.NotificationEventEnvelope;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
@@ -12,7 +12,9 @@ public class EmailNotificationConsumer {
             groupId = "${app.kafka.groups.email:email-group}",
             containerFactory = "notificationKafkaListenerContainerFactory"
     )
-    public void consume(NotificationEvent event) {
-        System.out.println("Sending Email: " + event);
+    public void consume(NotificationEventEnvelope eventEnvelope) {
+        System.out.println("Sending Email from envelope "
+                + (eventEnvelope != null ? eventEnvelope.getEventId() : "null")
+                + ": " + (eventEnvelope != null ? eventEnvelope.getPayload() : null));
     }
 }

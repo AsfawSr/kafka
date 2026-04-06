@@ -4,10 +4,10 @@ This project now uses a transactional outbox flow so `OrderConsumer` does not pu
 
 ## Flow
 
-1. `POST /api/orders` publishes an `OrderEvent` to Kafka topic `order`.
+1. `POST /api/orders` publishes a versioned envelope to Kafka topic `order`.
 2. `OrderConsumer` listens to `order` and writes a row into `outbox_event` (`PENDING`) through `OutboxService`.
 3. `OutboxPublisherPoller` runs on a schedule, fetches due outbox rows, and claims them (`PUBLISHING`).
-4. `NotificationProducer` publishes to one of:
+4. `NotificationProducer` publishes a versioned envelope to one of:
    - `notification.email.trucksload`
    - `notification.sms.trucksload`
    - `notification.push.trucksload`
@@ -20,6 +20,27 @@ This project now uses a transactional outbox flow so `OrderConsumer` does not pu
 - `PUBLISHED`: successfully sent to Kafka.
 - `FAILED_RETRYABLE`: failed but scheduled for another attempt.
 - `FAILED_PERMANENT`: retries exhausted.
+
+## Standard Event Envelope
+
+All Kafka messages now use a shared envelope format:
+
+```json
+{
+  "eventId": "8f76db31-9a4c-48a8-a54f-9c1e58b6fcb3",
+  "eventType": "ORDER_CREATED",
+  "version": 1,
+  "timestamp": "2026-04-06T10:32:14.120Z",
+  "payload": {
+    "orderId": "o-1001",
+    "userId": "u-42",
+    "message": "Your order has shipped",
+    "notificationType": "EMAIL"
+  }
+}
+```
+
+For notification topics, `eventType` is `NOTIFICATION_REQUESTED` and payload is `NotificationEvent`.
 
 ## Why This Pattern
 

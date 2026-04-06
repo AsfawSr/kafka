@@ -1,7 +1,7 @@
 package com.asfaw.kafka.config;
 
-import com.asfaw.kafka.notification.model.NotificationEvent;
-import com.asfaw.kafka.order.model.OrderEvent;
+import com.asfaw.kafka.notification.model.NotificationEventEnvelope;
+import com.asfaw.kafka.order.model.OrderEventEnvelope;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,9 +22,9 @@ public class KafkaConsumerConfig {
     private String bootstrapServers;
 
     @Bean
-    public ConsumerFactory<String, NotificationEvent> notificationEventConsumerFactory() {
-        JsonDeserializer<NotificationEvent> jsonDeserializer = new JsonDeserializer<>(NotificationEvent.class);
-        jsonDeserializer.addTrustedPackages("com.asfaw.kafka.notification.model");
+    public ConsumerFactory<String, NotificationEventEnvelope> notificationEventConsumerFactory() {
+        JsonDeserializer<NotificationEventEnvelope> jsonDeserializer = new JsonDeserializer<>(NotificationEventEnvelope.class);
+        jsonDeserializer.addTrustedPackages("com.asfaw.kafka");
 
         Map<String, Object> props = new HashMap<>();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
@@ -35,17 +35,17 @@ public class KafkaConsumerConfig {
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, NotificationEvent> notificationKafkaListenerContainerFactory() {
-        ConcurrentKafkaListenerContainerFactory<String, NotificationEvent> factory =
+    public ConcurrentKafkaListenerContainerFactory<String, NotificationEventEnvelope> notificationKafkaListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, NotificationEventEnvelope> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(notificationEventConsumerFactory());
         return factory;
     }
 
     @Bean
-    public ConsumerFactory<String, OrderEvent> orderEventConsumerFactory() {
-        JsonDeserializer<OrderEvent> jsonDeserializer = new JsonDeserializer<>(OrderEvent.class);
-        jsonDeserializer.addTrustedPackages("com.asfaw.kafka.order.model");
+    public ConsumerFactory<String, OrderEventEnvelope> orderEventConsumerFactory() {
+        JsonDeserializer<OrderEventEnvelope> jsonDeserializer = new JsonDeserializer<>(OrderEventEnvelope.class);
+        jsonDeserializer.addTrustedPackages("com.asfaw.kafka");
 
         Map<String, Object> props = new HashMap<>();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
@@ -56,8 +56,8 @@ public class KafkaConsumerConfig {
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, OrderEvent> orderKafkaListenerContainerFactory() {
-        ConcurrentKafkaListenerContainerFactory<String, OrderEvent> factory =
+    public ConcurrentKafkaListenerContainerFactory<String, OrderEventEnvelope> orderKafkaListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, OrderEventEnvelope> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(orderEventConsumerFactory());
         return factory;
